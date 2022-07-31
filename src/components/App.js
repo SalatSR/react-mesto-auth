@@ -8,6 +8,7 @@ import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
+import InfoTooltip from './InfoTooltip';
 import api from '../utils/api';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
+  const [isInfoTooltip, setIsInfoTooltip] = useState(true);
   const [selectedCard, setIsSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
   const [cards, setCards] = useState([]);
@@ -46,11 +48,16 @@ function App() {
     setIsImagePopupOpen(true);
   }
 
+  function handleInfoTooltip() {
+    setIsInfoTooltip(true);
+  }
+
   function closeAllPopups() {
     setIsEditAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsImagePopupOpen(false);
+    setIsInfoTooltip(false);
   }
 
   function handleUpdateUser(data) {
@@ -140,17 +147,25 @@ function App() {
             onClose={closeAllPopups}
             onAddPlace={handleAddPlaceSubmit}
           />
-          <PopupWithForm name="submit-deleting"
+          <PopupWithForm
+            name="submit-deleting"
             title="Вы уверены?"
             btnValue="Да"
             nameForm="submit-deleting"
-            onClose={closeAllPopups} >
+            onClose={closeAllPopups}
+          >
           </PopupWithForm>
           <ImagePopup
             name='image-view'
             card={selectedCard}
             isOpen={isImagePopupOpen}
             onClose={closeAllPopups}
+          />
+          <InfoTooltip
+            name='infotooltip'
+            isOpen={isInfoTooltip}
+            onClose={closeAllPopups}
+            mainImgDiscription="Success"
           />
         </CurrentUserContext.Provider>
       </div>
