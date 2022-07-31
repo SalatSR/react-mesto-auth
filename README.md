@@ -26,4 +26,4 @@
 
 Так же, с помощью специальных плагинов в CRA,поддерживаются браузеры ранних версий и обеспечивается кроссбраузерность.
 
-Ссылка на gp-pages: [https://salatsr.github.io/mesto-react-auth/](https://salatsr.github.io/mesto-react-auth/)
+Ссылка на gp-pages: [https://salatsr.github.io/react-mesto-auth/](https://salatsr.github.io/react-mesto-auth/)
