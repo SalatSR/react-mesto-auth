@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { CurrentUserContext } from '../context/CurrentUserContext';
+import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
+import Login from './Login';
+import Register from './Register';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -10,6 +13,8 @@ import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
 import InfoTooltip from './InfoTooltip';
 import api from '../utils/api';
+import * as authApi from '../utils/auth';
+import ProtectedRoute from './ProtectedRoute';
 
 function App() {
 
@@ -17,10 +22,15 @@ function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
-  const [isInfoTooltip, setIsInfoTooltip] = useState(true);
+  const [isInfoTooltip, setIsInfoTooltip] = useState(false);
   const [selectedCard, setIsSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
   const [cards, setCards] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [isSucceed, setIsSucceed] = useState(null)
+  const [userEmail, setUserEmail] = useState('');
+
+  const history = useHistory();
 
   useEffect(() => {
     api.getUserData()
@@ -30,6 +40,23 @@ function App() {
       .then(cards => setCards(cards))
       .catch(err => console.log(`Error: ${err}`))
   }, [])
+
+  /** Проверяем наличие токена в хранилище,
+   * сверяем токены на устройстве и сервере.
+   * Если есть логиним пользователя и отправляем на главную
+   */
+  useEffect(() => {
+    if(localStorage.getItem("jwt")) {
+      let token = localStorage.getItem("jwt")
+      authApi.checkToken(token)
+        .then((res) => {
+          setLoggedIn(true);
+          setUserEmail(res.email);
+          history.push('/');
+        })
+        .catch(err => console.log(err));
+    };
+  }, [history]);
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -46,10 +73,6 @@ function App() {
   function handleCardClick(card) {
     setIsSelectedCard(card);
     setIsImagePopupOpen(true);
-  }
-
-  function handleInfoTooltip() {
-    setIsInfoTooltip(true);
   }
 
   function closeAllPopups() {
@@ -96,9 +119,9 @@ function App() {
         .catch(err => console.log(`Error: ${err}`))
     }
   }
-  
+
   function handleCardDelete(card) {
-    
+
     function setCardDeleteSatus() {
       setCards(cards => cards.filter(item => item._id !== card._id))
     }
@@ -116,21 +139,99 @@ function App() {
       })
       .catch(err => console.log(`Error: ${err}`))
   }
+  /** Логинимся, получаем токен,
+   * записываем в хранилище,
+   * отправляем на главную
+   */
+  function handleLogin(email, password) {
+    authApi.auth(email, password)
+      .then((res) => {
+        localStorage.setItem("jwt", res.token);
+        setLoggedIn(true);
+        setUserEmail(email);
+        history.push('/');
+      })
+      .catch(err => console.log(err));
+  }
+  /** Регистрация, информируем об успешности/провале регистрации */
+  function handleRegister(email, password) {
+    authApi.reg(email, password)
+      .then((res) => {
+        setIsSucceed(true);
+        setIsInfoTooltip(true);
+      })
+      .catch((err) => {
+        setIsSucceed(false);
+        setIsInfoTooltip(true);
+        console.log(err)
+      });
+  }
+  /** Проверяем адресс, на который ссылается кнопка в Header
+   * если адрес ссылается на "/sign-out" - удаляем токен из хранилища
+   * разлогиниваем пользователя
+  */
+  function onHeaderLinkClick(link) {
+    console.log(link === "/sign-out")
+    if(link === "/sign-out") {
+      localStorage.removeItem('jwt');
+      setLoggedIn(false)
+      history.push("/sign-in")
+    }
+  }
 
-  return ((
+  return (
     <div id="page" className="page">
       <div id="page__content" className="page__content">
         <CurrentUserContext.Provider value={currentUser}>
-          <Header />
-          <Main
-            onEditProfile={handleEditProfileClick}
-            onAddPlace={handleAddPlaceClick}
-            onEditAvatar={handleEditAvatarClick}
-            cards={cards}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            onCardDelete={handleCardDelete}
-          />
+          <Switch>
+            <ProtectedRoute
+              exact path="/"
+              loggedIn={loggedIn}
+            >
+              <Header
+                link="/sign-out"
+                userEmail={userEmail}
+                btnText="Выйти"
+                onHeaderLinkClick={onHeaderLinkClick}
+              />
+              <Main
+                onEditProfile={handleEditProfileClick}
+                onAddPlace={handleAddPlaceClick}
+                onEditAvatar={handleEditAvatarClick}
+                cards={cards}
+                onCardClick={handleCardClick}
+                onCardLike={handleCardLike}
+                onCardDelete={handleCardDelete}
+              />
+            </ProtectedRoute>
+            <Route path="/sign-up">
+              <Header
+                link="/sign-in"
+                btnText="Войти"
+                onHeaderLinkClick={onHeaderLinkClick}
+              />
+              <Register
+                handleRegister={handleRegister}
+              />
+            </Route>
+            <Route path="/sign-in">
+              <Header
+                link="/sign-up"
+                btnText="Регистрация"
+                onHeaderLinkClick={onHeaderLinkClick}
+              />
+              <Login
+                handleLogin={handleLogin}
+              />
+            </Route>
+            <Route>
+              {loggedIn ?
+                (<Redirect to="/" />
+                ) : (
+                  <Redirect to="/sign-in" />
+                )}
+            </Route>
+          </Switch>
           <Footer />
           <EditProfilePopup
             isOpen={isEditProfilePopupOpen}
@@ -165,12 +266,13 @@ function App() {
             name='infotooltip'
             isOpen={isInfoTooltip}
             onClose={closeAllPopups}
-            mainImgDiscription="Success"
+            isLogin={isSucceed}
+            mainImgDiscription={isSucceed ? "Success" : "Fail"}
           />
         </CurrentUserContext.Provider>
       </div>
     </div>
-  ));
+  );
 }
 
 export default App;

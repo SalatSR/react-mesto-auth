@@ -6,8 +6,19 @@
 
 @import url(./blocks/header/header.css);
 @import url(./blocks/header/__logo/header__logo.css);
+@import url(./blocks/header/__wrapper/header__wrapper.css);
+@import url(./blocks/header/__user-info/header__user-info.css);
+@import url(./blocks/header/__entrance-link/header__entrance-link.css);
 
 @import url(./blocks/content/content.css);
+
+@import url(./blocks/entrance/entrance.css);
+@import url(./blocks/entrance/__title/entrance__title.css);
+@import url(./blocks/entrance/__form/entrance__form.css);
+@import url(./blocks/entrance/__input/entrance__input.css);
+@import url(./blocks/entrance/__submit-button/entrance__submit-button.css);
+@import url(./blocks/entrance/__welcom-phrase/entrance__welcom-phrase.css);
+@import url(./blocks/entrance/__welcom-phrase-link/entrance__welcom-phrase-link.css);
 
 @import url(./blocks/popup/popup.css);
 @import url(./blocks/popup/__error/popup__error.css);
