@@ -10,7 +10,7 @@ function Header(props) {
 
   return (
     <header className="header">
-      <a href="https://salatsr.github.io/mesto-react/"
+      <a href="https://salatsr.github.io/mesto-react-auth/"
         className="header__logo-link">
         <img src={logo}
           alt="Логотип Mestro Russia"
