@@ -49,11 +49,11 @@ function App() {
    */
   useEffect(() => {
     let token = localStorage.getItem("jwt");
-    if (localStorage.getItem("jwt")) {
+    if (token) {
       authApi.checkToken(token)
         .then((res) => {
           setLoggedIn(true);
-          setUserEmail(res.email);
+          setUserEmail(res.data.email);
           history.push('/');
         })
         .catch(err => console.log(err));
@@ -146,7 +146,7 @@ function App() {
    * отправляем на главную
    */
   function handleLogin(email, password) {
-    authApi.auth(email, password)
+    return authApi.auth(email, password)
       .then((res) => {
         localStorage.setItem("jwt", res.token);
         setLoggedIn(true);
@@ -165,9 +165,7 @@ function App() {
       .then((res) => {
         setIsSucceed(true);
         setIsInfoTooltip(true);
-        setLoggedIn(true);
-        setUserEmail(res.email);
-        history.push('/');
+        history.push("/sign-in");
       })
       .catch((err) => {
         setIsSucceed(false);

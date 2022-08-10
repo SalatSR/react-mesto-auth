@@ -19,7 +19,7 @@ export const reg = (email, password) => {
       email
     })
   })
-    .then(res => checkResponse(res))
+  .then((res => checkResponse(res)))
 };
 
 export const auth = (email, password) => {
