@@ -45,6 +45,9 @@ export const checkToken = (token) => {
     }
   })
     .then((res) => {
-      checkResponse(res)
+      if (res.ok) {
+        return res.json()
+      }
+      return Promise.reject(`Error: ${res.status} ${res.statusText}`);
     });
 };

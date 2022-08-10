@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import imgSucces from './../images/image-success.png';
 import imgFail from './../images/image-fail.png';
 
-function InfoTooltip({ name, isOpen, onClose, isLogin, mainImgDiscription }) {
+function InfoTooltip({ name, isOpen, onClose, isLogin, mainImgDiscription, loginStateTitle }) {
 
   // /** Закрываем попапы по нажатию Escape */
   const closeByEscape = useCallback((e) => {
@@ -10,7 +10,6 @@ function InfoTooltip({ name, isOpen, onClose, isLogin, mainImgDiscription }) {
       onClose();
     }
   }, [onClose])
-
 
   useEffect(() => {
     if (isOpen) {
@@ -44,9 +43,7 @@ function InfoTooltip({ name, isOpen, onClose, isLogin, mainImgDiscription }) {
           alt={mainImgDiscription}
         />
         <h2 className="popup__header">
-          {isLogin ?
-            'Вы успешно зарегистрировались!' :
-            'Что-то пошло не так! Попробуйте ещё раз.'}
+          {loginStateTitle}
         </h2>
       </div>
     </div>

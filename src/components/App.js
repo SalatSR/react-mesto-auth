@@ -33,21 +33,23 @@ function App() {
   const history = useHistory();
 
   useEffect(() => {
-    api.getUserData()
-      .then(currentUser => setCurrentUser(currentUser))
-      .catch(err => console.log(`Error: ${err}`))
-    api.getInitialCards()
-      .then(cards => setCards(cards))
-      .catch(err => console.log(`Error: ${err}`))
-  }, [])
+    if (loggedIn) {
+      api.getUserData()
+        .then(currentUser => setCurrentUser(currentUser))
+        .catch(err => console.log(`Error: ${err}`))
+      api.getInitialCards()
+        .then(cards => setCards(cards))
+        .catch(err => console.log(`Error: ${err}`))
+    }
+  }, [loggedIn]);
 
   /** Проверяем наличие токена в хранилище,
    * сверяем токены на устройстве и сервере.
    * Если есть логиним пользователя и отправляем на главную
    */
   useEffect(() => {
-    if(localStorage.getItem("jwt")) {
-      let token = localStorage.getItem("jwt")
+    let token = localStorage.getItem("jwt");
+    if (localStorage.getItem("jwt")) {
       authApi.checkToken(token)
         .then((res) => {
           setLoggedIn(true);
@@ -151,7 +153,11 @@ function App() {
         setUserEmail(email);
         history.push('/');
       })
-      .catch(err => console.log(err));
+      .catch((err) => {
+        setIsSucceed(false);
+        setIsInfoTooltip(true);
+        console.log(err)
+      });
   }
   /** Регистрация, информируем об успешности/провале регистрации */
   function handleRegister(email, password) {
@@ -159,6 +165,9 @@ function App() {
       .then((res) => {
         setIsSucceed(true);
         setIsInfoTooltip(true);
+        setLoggedIn(true);
+        setUserEmail(res.email);
+        history.push('/');
       })
       .catch((err) => {
         setIsSucceed(false);
@@ -171,8 +180,7 @@ function App() {
    * разлогиниваем пользователя
   */
   function onHeaderLinkClick(link) {
-    console.log(link === "/sign-out")
-    if(link === "/sign-out") {
+    if (link === "/sign-out") {
       localStorage.removeItem('jwt');
       setLoggedIn(false)
       history.push("/sign-in")
@@ -268,6 +276,9 @@ function App() {
             onClose={closeAllPopups}
             isLogin={isSucceed}
             mainImgDiscription={isSucceed ? "Success" : "Fail"}
+            loginStateTitle={isSucceed ?
+              'Вы успешно зарегистрировались!' :
+              'Что-то пошло не так! Попробуйте ещё раз.'}
           />
         </CurrentUserContext.Provider>
       </div>
